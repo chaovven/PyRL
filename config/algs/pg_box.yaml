@@ -1,0 +1,13 @@
+name: pg_box
+learner: pg_learner
+
+buffer_size: 1
+batch_size: 1
+
+action_selector: "gaussian"  # for continuous case
+agent: "gaussian"
+
+lr: 0.003
+critic_lr: 0.01
+
+hidden_dim: 32

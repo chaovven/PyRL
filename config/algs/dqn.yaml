@@ -1,0 +1,20 @@
+name: DQN
+learner: dqn_learner
+
+buffer_size: 5000
+batch_size: 8
+
+# use epsilon greedy action selector
+action_selector: "epsilon_greedy"
+eps_start: 1.0
+eps_finish: 0.05
+eps_anneal_time: 50000
+agent: "categorical"  # use actor in modules/agents/{}_policy.py
+
+lr: 0.0001  # learning rate for policy
+
+log_interval: 1000
+start_timesteps: 2500
+max_timesteps: 1000000
+
+hidden_dim: 64

@@ -1,0 +1,13 @@
+name: pg_disc
+learner: pg_learner
+
+buffer_size: 1
+batch_size: 1
+
+action_selector: "multinomial"  # for discrete case
+agent: "categorical"  # use actor in modules/agents/{}_policy.py
+
+lr: 0.003
+critic_lr: 0.01
+
+hidden_dim: 32

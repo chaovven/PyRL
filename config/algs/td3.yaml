@@ -1,0 +1,19 @@
+name: td3
+learner: td3_learner
+
+buffer_size: 5000
+batch_size: 8
+
+action_selector: "deterministic"
+agent: "deterministic"
+
+lr: 0.0001
+critic_lr: 0.0001
+
+expl_noise: 0.1 # std of Gaussian exploration noise (used when selecting action)
+policy_noise: 0.2 # noise added to target policy during critic update
+noise_clip: 0.5 # range to clip target policy noise
+
+hidden_dim: 256
+
+policy_freq: 1000 # policy update frequency
