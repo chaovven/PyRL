@@ -74,3 +74,4 @@ If you reference or use PyRL in your research, please cite:
 }
 ```
 
+This project reuses some code from [pymarl](https://github.com/oxwhirl/pymarl) and [TD3](https://github.com/sfujim/TD3). Thanks for their work.
