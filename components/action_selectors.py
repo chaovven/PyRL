@@ -3,17 +3,23 @@ import numpy as np
 from torch.distributions import Categorical
 from components.decay_schedules import DecaySchedule
 
-REGISTRY = {}
+
+class BaseActionSelector():
+    def __init__(self, args, logger):
+        self.args = args
+        self.logger = logger
+
+    def select_action(self, agent_out, t_env, train_mode=False):
+        raise NotImplementedError
 
 
-class EpsilonGreedyActionSelector():
+class EpsilonGreedyActionSelector(BaseActionSelector):
     """
     Epsilon greedy is usually used in DQN for discrete action space.
     """
 
     def __init__(self, args, logger=None):
-        self.args = args
-        self.logger = logger
+        BaseActionSelector.__init__(self, args, logger)
 
         self.schedule = DecaySchedule(args.eps_start, args.eps_finish, args.eps_anneal_time, decay="exp")
         self.epsilon = self.schedule.eval(0)
@@ -38,50 +44,56 @@ class EpsilonGreedyActionSelector():
         return a.numpy().item()
 
 
-REGISTRY["epsilon_greedy"] = EpsilonGreedyActionSelector
-
-
-class GaussianActionSelector():
+class GaussianActionSelector(BaseActionSelector):
     """
     This action selector is for the case of continuous action space
     in which a gaussian distribution of the action is learned.
     """
 
     def __init__(self, args, logger):
-        self.args = args
-        self.logger = logger
+        BaseActionSelector.__init__(self, args, logger)
+        self.log_prob = None
 
     def select_action(self, action_dist, t_env, train_mode=False):
         a = action_dist.sample()
+        self.log_prob = action_dist.log_prob(a).detach()
 
         return a.numpy().item()
 
 
-REGISTRY["gaussian"] = GaussianActionSelector
-
-
-class MultinomialActionSelector():
+class MultinomialActionSelector(BaseActionSelector):
 
     def __init__(self, args, logger):
-        self.args = args
-        self.logger = logger
+        BaseActionSelector.__init__(self, args, logger)
+        self.schedule = DecaySchedule(args.eps_start, args.eps_finish, args.eps_anneal_time, decay="exp")
+        self.epsilon = self.schedule.eval(0)
+
+        self.last_log = -self.args.log_interval - 1  # last time the data logged
+        self.log_prob = None
 
     def select_action(self, logits, t_env, train_mode=False):
+        self.epsilon = self.schedule.eval(t_env)
+        probs = th.nn.functional.softmax(logits, dim=-1)
+
         if train_mode:
-            picked_actions = Categorical(logits).sample().long()
+            # select a random action with epsilon probability
+            probs = probs * (1 - self.epsilon) + self.epsilon / probs.shape[-1]
+            picked_actions = Categorical(probs=probs).sample().long()
+            # log
+            if t_env - self.last_log >= self.args.log_interval:
+                self.logger.add_scalar("epsilon", self.epsilon, t_env)
+                self.last_log = t_env
         else:
-            picked_actions = logits.max(dim=-1)[1]
+            picked_actions = probs.max(dim=-1)[1]
+
+        self.log_prob = th.log(probs).detach()[:, picked_actions]
 
         return picked_actions.numpy().item()
 
 
-REGISTRY["multinomial"] = MultinomialActionSelector
-
-
-class DeterministicActionSelector():
+class DeterministicActionSelector(BaseActionSelector):
     def __init__(self, args, logger):
-        self.args = args
-        self.logger = logger
+        BaseActionSelector.__init__(self, args, logger)
 
     def select_action(self, actor_out, t_env, train_mode=False):
         if train_mode:  # add noise if training
@@ -92,4 +104,9 @@ class DeterministicActionSelector():
         return a
 
 
+REGISTRY = {}
+REGISTRY["epsilon_greedy"] = EpsilonGreedyActionSelector
+REGISTRY["gaussian"] = GaussianActionSelector
+REGISTRY["multinomial"] = MultinomialActionSelector
 REGISTRY["deterministic"] = MultinomialActionSelector
+
