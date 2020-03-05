@@ -1,10 +1,13 @@
 name: pg_disc
-learner: pg_learner
+learner: pg
 
 buffer_size: 1
 batch_size: 1
 
 action_selector: "multinomial"  # for discrete case
+eps_start: 1.0
+eps_finish: 0.05
+eps_anneal_time: 50000
 agent: "categorical"  # use actor in modules/agents/{}_policy.py
 
 lr: 0.003

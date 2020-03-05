@@ -1,5 +1,5 @@
 name: ddpg
-learner: ddpg_learner
+learner: ddpg
 
 buffer_size: 5000
 batch_size: 8

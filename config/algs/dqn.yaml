@@ -1,5 +1,5 @@
-name: DQN
-learner: dqn_learner
+name: dqn
+learner: dqn
 
 buffer_size: 5000
 batch_size: 8

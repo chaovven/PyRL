@@ -1,5 +1,5 @@
 name: td3
-learner: td3_learner
+learner: td3
 
 buffer_size: 5000
 batch_size: 8
