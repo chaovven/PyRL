@@ -32,14 +32,9 @@ def run(_run, _config, _log, env):
 
     ep_buffer = EpisodeBuffer(args)
 
-    ep_num = 0
-    ep_t = 0
-    ep_reward = 0
     ep_data = ep_buffer.new_empty_batch()
-
     t_env_old = -args.log_interval - 1  # log the first run
-
-    s0 = env.reset()
+    s0, ep_num, ep_t, ep_reward = env.reset(), 0, 0, 0
 
     for t_env in range(int(args.max_timesteps)):
 
@@ -54,8 +49,10 @@ def run(_run, _config, _log, env):
         ep_data['state'][:, ep_t] = th.tensor(s0).view(1, -1)
         ep_data['action'][:, ep_t] = th.tensor(a0).view(1, -1)
         ep_data['reward'][:, ep_t] = th.tensor(r1).view(1, -1)
-        if args.discrete:
+        if args.buf_act_onehot:
             ep_data['action_onehot'][:, ep_t] = one_hot(th.tensor(a0).view(1, -1), args.action_dim)
+        if args.buf_act_logprob:
+            ep_data['log_prob'][:, ep_t] = th.tensor(action_selector.log_prob).view(1, -1)
 
         s0 = s1
         ep_t += 1
@@ -83,10 +80,15 @@ def run(_run, _config, _log, env):
             s0, done = env.reset(), False
             ep_data = ep_buffer.new_empty_batch()
 
-            # train policy after sampling an episode
-            if ep_buffer._len() >= args.batch_size:  # can train or not
+            # train policy when sufficient episodes are collected
+            if ep_buffer._len() >= args.batch_size:  # can train or not ?
+
                 batch_samples = ep_buffer.sample(args.batch_size)
                 learner.train(batch_samples, t_env)
+
+                # if on policy, clear the replay buffer
+                if args.buffer_size == args.batch_size:
+                    ep_buffer.clear()
 
     env.close()
 

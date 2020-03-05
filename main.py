@@ -10,6 +10,7 @@ import torch as th
 from run import run
 import yaml
 import gym
+from gym.spaces import Box, Discrete
 
 ex = Experiment("pyrl")
 
@@ -27,27 +28,27 @@ def my_main(_run, _config, _log):
     _config['state_dim'] = env.observation_space.shape[0]
     _config['ep_limit'] = env._max_episode_steps
 
-    try:  # continuous action space
+    if isinstance(env.action_space, Box):
+        _config['discrete'] = False
         _config['action_dim'] = env.action_space.shape[0]
         _config['max_action'] = env.action_space.high
         _config['min_action'] = env.action_space.low
 
-        unique_token = "{}__{}__alr={}__clr={}__{}".format(
-            _config['env'],
-            _config['name'],
-            _config['lr'],
-            _config['critic_lr'],
-            _config['time'])
-        _config['discrete'] = False
-
-    except:  # discreate action space
-        _config['action_dim'] = env.action_space.n
-        unique_token = "{}__{}__lr={}__{}".format(
-            _config['env'],
-            _config['name'],
-            _config['lr'],
-            _config['time'])
+    elif isinstance(env.action_space, Discrete):
         _config['discrete'] = True
+        _config['action_dim'] = env.action_space.n
+
+    # fields that appear in the event filename
+    use_critic = _config['learner'] not in ['dqn_learner']
+    values = ['env', 'learner', 'lr']
+    names = ['', '', 'lr=']
+    if use_critic:
+        values.append('critic_lr')
+        names.append('clr=')
+    unique_token = _config[values[0]]
+    for i in range(1, len(names)):
+        unique_token = unique_token + '__{}{}'.format(names[i], str(_config[values[i]]))
+    unique_token += '__' + _config['time']
 
     _config['tb_path'] = os.path.join(dirname(abspath(__file__)), "results", _config['env'], unique_token)
 

@@ -2,16 +2,15 @@
 
 PyRL is a framework for research in deep reinforcement learning. The following algorithms are implemented in PyTorch:
 
-- Policy Gradient
+- [Policy Gradient](https://papers.nips.cc/paper/1713-policy-gradient-methods-for-reinforcement-learning-with-function-approximation.pdf)
 - [Deep Q Network](https://www.nature.com/articles/nature14236)
 - [DDPG](https://arxiv.org/abs/1509.02971)
 - [TD3](https://arxiv.org/abs/1802.09477)
+- [PPO](https://arxiv.org/abs/1707.06347)
 - [TRPO](https://arxiv.org/abs/1502.05477) (WIP)
-- [PPO](https://arxiv.org/abs/1707.06347) (WIP)
 - [SAC](https://arxiv.org/abs/1801.01290) (WIP)
 
 This project is still under active development.
-
 
 # Installation
 
@@ -26,7 +25,7 @@ Some of the examples use MuJoCo physics simulator. Instructions on setting up Mu
 
 
 
-# Run experiment
+# Run Experiments
 
 * Example 1: **TD3**
 ```
@@ -74,4 +73,4 @@ If you reference or use PyRL in your research, please cite:
 }
 ```
 
-This project reuses some code from [pymarl](https://github.com/oxwhirl/pymarl) and [TD3](https://github.com/sfujim/TD3). Thanks for their work.
+This project reuses some code from [pymarl](https://github.com/oxwhirl/pymarl), [spinningup](https://github.com/openai/spinningup.git), and [TD3](https://github.com/sfujim/TD3). Thanks for their work.

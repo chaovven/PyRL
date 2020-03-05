@@ -11,12 +11,10 @@ class CategoricalPolicy(nn.Module):
         self.args = args
 
         self.fc1 = nn.Linear(args.state_dim, args.hidden_dim)
-        self.fc2 = nn.Linear(args.hidden_dim, args.hidden_dim)
-        self.fc3 = nn.Linear(args.hidden_dim, args.action_dim)
+        self.fc2 = nn.Linear(args.hidden_dim, args.action_dim)
 
     def forward(self, state):
         x = F.relu(self.fc1(state))
-        x = F.relu(self.fc2(x))
-        out = self.fc3(x)
+        out = self.fc2(x)
 
         return out
