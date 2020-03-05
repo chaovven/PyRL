@@ -14,3 +14,7 @@ tau: 0.005
 gamma: 0.99
 
 grad_norm_clip: 10
+
+# whether store these items in the buffer
+buf_act_logprob: False
+buf_act_onehot: False

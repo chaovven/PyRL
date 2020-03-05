@@ -1,0 +1,22 @@
+name: ppo_disc
+learner: ppo
+
+buffer_size: 8
+batch_size: 8
+
+action_selector: "multinomial"  # for discrete case
+eps_start: 1.0
+eps_finish: 0.05
+eps_anneal_time: 50000
+agent: "categorical"  # use actor in modules/agents/{}_policy.py
+
+lr: 0.0005
+critic_lr: 0.0001
+
+hidden_dim: 32
+clip_ratio: 0.2 # clip ratio for PPO
+
+start_timesteps: 0 # use random policy till running for {} timesteps
+train_actor_iters: 80
+train_critic_iters: 80
+buf_act_logprob: True # ppo needs to store action log probs in the buffer

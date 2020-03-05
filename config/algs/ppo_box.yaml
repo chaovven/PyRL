@@ -1,0 +1,21 @@
+name: ppo_box
+learner: ppo
+
+# if on-policy: buffer_size = buffer_size
+# off-policy: buffer_size >= batch_size
+buffer_size: 4
+batch_size: 4
+
+action_selector: "gaussian"  # for continuous case
+agent: "gaussian"
+
+lr: 0.0001
+critic_lr: 0.0001
+
+hidden_dim: 32
+clip_ratio: 0.2 # clip ratio for PPO
+
+start_timesteps: 0 # use random policy till running for {} timesteps
+train_actor_iters: 10
+train_critic_iters: 10
+buf_act_logprob: True # ppo needs to store action log probs in the buffer
