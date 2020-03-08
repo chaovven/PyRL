@@ -14,7 +14,6 @@ class DQNLearner(BaseLearner):
         args = self.args
         s = batch['state']
         a = batch['action'].long()
-        a_onehot = batch['action_onehot']
         r = batch['reward'][:, :-1]
         done = batch['done'][:, :-1]
         mask = batch['mask'][:, :-1]

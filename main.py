@@ -39,7 +39,7 @@ def my_main(_run, _config, _log):
         _config['action_dim'] = env.action_space.n
 
     # fields that appear in the event filename
-    use_critic = _config['learner'] not in ['dqn_learner']
+    use_critic = _config['learner'] not in ['dqn']
     values = ['env', 'learner', 'lr']
     names = ['', '', 'lr=']
     if use_critic:

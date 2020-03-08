@@ -1,4 +1,5 @@
 from utils.eval_policy import eval_policy
+import numpy as np
 import pprint
 from components.episode_buffer import EpisodeBuffer
 from tensorboardX import SummaryWriter
@@ -40,9 +41,11 @@ def run(_run, _config, _log, env):
 
         # chose action
         if t_env < args.start_timesteps:  # use random policy if no sufficient transitions collected
-            a0 = env.action_space.sample()
+            a0 = np.array(env.action_space.sample())
         else:
-            a0 = action_selector.select_action(learner.forward(s0), t_env, train_mode=True)
+            a0 = action_selector.select_action(learner.forward(s0), t_env, train_mode=True).numpy()
+
+        a0 = a0.item() if args.discrete else a0
 
         s1, r1, done, _ = env.step(a0)
 
@@ -52,7 +55,7 @@ def run(_run, _config, _log, env):
         if args.buf_act_onehot:
             ep_data['action_onehot'][:, ep_t] = one_hot(th.tensor(a0).view(1, -1), args.action_dim)
         if args.buf_act_logprob:
-            ep_data['log_prob'][:, ep_t] = th.tensor(action_selector.log_prob).view(1, -1)
+            ep_data['log_prob'][:, ep_t] = action_selector.log_prob.view(1, -1)
 
         s0 = s1
         ep_t += 1

@@ -1,5 +1,6 @@
 import gym
 
+
 def eval_policy(learner, action_selector, args):
     eval_env = gym.make(args.env)
     eval_env.seed(args.seed + 100)
@@ -10,6 +11,7 @@ def eval_policy(learner, action_selector, args):
         while not done:
             agent_output = learner.forward(state)
             action = action_selector.select_action(agent_output, 0, train_mode=False)
+            action = action.item() if args.discrete else action
             state, reward, done, _ = eval_env.step(action)
             avg_reward += reward
 

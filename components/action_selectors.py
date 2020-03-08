@@ -41,13 +41,14 @@ class EpsilonGreedyActionSelector(BaseActionSelector):
             self.logger.add_scalar("epsilon", self.epsilon, t_env)
             self.last_log = t_env
 
-        return a.numpy().item()
+        return a
 
 
 class GaussianActionSelector(BaseActionSelector):
     """
     This action selector is for the case of continuous action space
     in which a gaussian distribution of the action is learned.
+    Used by continuous algorithms like PPO and Policy Gradient.
     """
 
     def __init__(self, args, logger):
@@ -55,10 +56,33 @@ class GaussianActionSelector(BaseActionSelector):
         self.log_prob = None
 
     def select_action(self, action_dist, t_env, train_mode=False):
-        a = action_dist.sample()
-        self.log_prob = action_dist.log_prob(a).detach()
+        if train_mode:
+            a = action_dist.sample()
+            self.log_prob = action_dist.log_prob(a).detach()
+        else:
+            a = action_dist.mean.detach()
 
-        return a.numpy().item()
+        return a
+
+
+class SquashedGaussianActionSelector(BaseActionSelector):
+    """
+    Used by Soft Actor Critc (SAC)
+    """
+
+    def __init__(self, args, logger):
+        BaseActionSelector.__init__(self, args, logger)
+        self.log_prob = None
+
+    def select_action(self, action_dist, t_env, train_mode=False):
+        if train_mode:
+            a = action_dist.rsample()  # reparameterization trick
+        else:
+            a = action_dist.mean.detach()
+
+        a = th.tanh(a) * th.tensor(self.args.max_action, dtype=th.float)  # TODO: how about just clipping like TD3?
+
+        return a
 
 
 class MultinomialActionSelector(BaseActionSelector):
@@ -88,7 +112,7 @@ class MultinomialActionSelector(BaseActionSelector):
 
         self.log_prob = th.log(probs).detach()[:, picked_actions]
 
-        return picked_actions.numpy().item()
+        return picked_actions
 
 
 class DeterministicActionSelector(BaseActionSelector):
@@ -109,4 +133,4 @@ REGISTRY["epsilon_greedy"] = EpsilonGreedyActionSelector
 REGISTRY["gaussian"] = GaussianActionSelector
 REGISTRY["multinomial"] = MultinomialActionSelector
 REGISTRY["deterministic"] = MultinomialActionSelector
-
+REGISTRY["squashed_gaussian"] = SquashedGaussianActionSelector
