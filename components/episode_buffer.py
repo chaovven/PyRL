@@ -44,16 +44,18 @@ class EpisodeBuffer:
 
     def new_empty_batch(self):
         args = self.args
+        act_dim = 1 if args.discrete else args.action_dim
         ep_data = {
             'state': th.zeros([1, args.ep_limit + 1, args.state_dim], dtype=th.float),
-            'action': th.zeros([1, args.ep_limit + 1, 1], dtype=th.float),
+            'action': th.zeros([1, args.ep_limit + 1, act_dim], dtype=th.float),
             'reward': th.zeros([1, args.ep_limit + 1, 1], dtype=th.float),
             'mask': th.ones([1, args.ep_limit + 1, 1], dtype=th.float),
             'done': th.zeros([1, args.ep_limit + 1, 1], dtype=th.float),
         }
+
         if self.args.buf_act_onehot:
             ep_data['action_onehot'] = th.zeros([1, args.ep_limit + 1, args.action_dim], dtype=th.float)
         if self.args.buf_act_logprob:
-            ep_data['log_prob'] = th.zeros([1, args.ep_limit + 1, 1], dtype=th.float)
+            ep_data['log_prob'] = th.zeros([1, args.ep_limit + 1, act_dim], dtype=th.float)
 
         return ep_data
