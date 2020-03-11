@@ -1,6 +1,6 @@
 import torch as th
 from torch.optim import Adam
-from modules.agent import REGISTRY as AGENT_REGISTRY
+from modules.actor import REGISTRY as AGENT_REGISTRY
 
 
 class BaseLearner():
@@ -8,7 +8,7 @@ class BaseLearner():
         self.logger = logger
         self.args = args
 
-        self.actor = AGENT_REGISTRY[args.agent](args)
+        self.actor = AGENT_REGISTRY[args.actor](args)
         self.critic = None
 
         self.target_actor = None

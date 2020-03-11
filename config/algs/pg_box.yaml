@@ -5,7 +5,7 @@ buffer_size: 1
 batch_size: 1
 
 action_selector: "gaussian"  # for continuous case
-agent: "gaussian"
+actor: "gaussian"
 
 lr: 0.0003
 critic_lr: 0.0001
