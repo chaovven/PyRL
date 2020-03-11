@@ -1,6 +1,6 @@
 from numpy.random import normal
 import torch as th
-from modules.critic.q_fun import QFun_td3
+from modules.critic.q_fun import QFun_double
 from torch.optim import Adam
 import copy
 from .base_learner import BaseLearner
@@ -10,7 +10,7 @@ class TD3Learner(BaseLearner):
     def __init__(self, args, logger):
         BaseLearner.__init__(self, args, logger)
 
-        self.critic = QFun_td3(args)
+        self.critic = QFun_double(args)
 
         self.target_actor = copy.deepcopy(self.actor)
         self.target_critic = copy.deepcopy(self.critic)
@@ -36,12 +36,12 @@ class TD3Learner(BaseLearner):
         target_action = th.FloatTensor(target_action)
 
         # trick 2: use two q networks
-        target_q1, target_q2 = self.target_critic(s[:, 1:], target_action)
-        target_q1 = r + args.gamma * (1 - done) * target_q1
-        target_q2 = r + args.gamma * (1 - done) * target_q2
-        target_q = th.min(target_q1, target_q2)
+        target_q1 = self.target_critic.q1(state=s[:, 1:], action=target_action)
+        target_q2 = self.target_critic.q2(s[:, 1:], target_action)
+        target_q = r + args.gamma * (1 - done) * th.min(target_q1, target_q2)
 
-        chosen_action_q1, chosen_action_q2 = self.critic(s[:, :-1], a[:, :-1])
+        chosen_action_q1 = self.critic.q1(s[:, :-1], a[:, :-1])
+        chosen_action_q2 = self.critic.q2(s[:, :-1], a[:, :-1])
 
         td_error1 = chosen_action_q1 - target_q.detach()
         td_error2 = chosen_action_q2 - target_q.detach()
@@ -63,7 +63,7 @@ class TD3Learner(BaseLearner):
 
         # trick 3: delay the update of the actor
         if t_env - self.pi_last_updated >= self.args.policy_freq:
-            actor_loss = - self.critic.Q1(s, self.actor(s))[:, :-1]
+            actor_loss = - self.critic.q1(s, self.actor(s))[:, :-1]
             actor_loss = (actor_loss * mask).sum() / mask.sum()
 
             self.actor_optimizer.zero_grad()
