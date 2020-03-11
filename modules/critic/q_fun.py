@@ -45,39 +45,30 @@ class QFun_discreate(nn.Module):
         return q
 
 
-class QFun_td3(nn.Module):
+class QFun_double(nn.Module):
     """
     double Q architecture used by TD3
     """
 
     def __init__(self, args):
-        super(QFun_td3, self).__init__()
+        super(QFun_double, self).__init__()
 
-        # Q1 architecture
-        self.fc1 = nn.Linear(args.state_dim + args.action_dim, args.hidden_dim)
-        self.fc2 = nn.Linear(args.hidden_dim, args.hidden_dim)
-        self.fc3 = nn.Linear(args.hidden_dim, 1)
+        self.q1_net = nn.Sequential(nn.Linear(args.state_dim + args.action_dim, args.hidden_dim),
+                                    nn.ReLU(),
+                                    nn.Linear(args.hidden_dim, args.hidden_dim),
+                                    nn.ReLU(),
+                                    nn.Linear(args.hidden_dim, 1))
 
-        # Q2 architecture
-        self.fc4 = nn.Linear(args.state_dim + args.action_dim, args.hidden_dim)
-        self.fc5 = nn.Linear(args.hidden_dim, args.hidden_dim)
-        self.fc6 = nn.Linear(args.hidden_dim, 1)
+        self.q2_net = nn.Sequential(nn.Linear(args.state_dim + args.action_dim, args.hidden_dim),
+                                    nn.ReLU(),
+                                    nn.Linear(args.hidden_dim, args.hidden_dim),
+                                    nn.ReLU(),
+                                    nn.Linear(args.hidden_dim, 1))
 
-    def forward(self, state, action):
+    def q1(self, state, action):
         input = th.cat([state, action], dim=-1)
-        x = th.relu(self.fc1(input))
-        x = th.relu(self.fc2(x))
-        q1 = self.fc3(x)
+        return self.q1_net(input)
 
-        x = th.relu(self.fc4(input))
-        x = th.relu(self.fc5(x))
-        q2 = self.fc6(x)
-
-        return q1, q2
-
-    def Q1(self, state, action):
+    def q2(self, state, action):
         input = th.cat([state, action], dim=-1)
-        x = th.relu(self.fc1(input))
-        x = th.relu(self.fc2(x))
-        q1 = self.fc3(x)
-        return q1
+        return self.q2_net(input)
