@@ -7,10 +7,18 @@ PyRL is a framework for research in deep reinforcement learning. The following a
 - [DDPG](https://arxiv.org/abs/1509.02971)
 - [TD3](https://arxiv.org/abs/1802.09477)
 - [PPO](https://arxiv.org/abs/1707.06347)
+- [SAC](https://arxiv.org/abs/1801.01290)
 - [TRPO](https://arxiv.org/abs/1502.05477) (WIP)
-- [SAC](https://arxiv.org/abs/1801.01290) (WIP)
+- [ACER](https://arxiv.org/abs/1611.01224) (WIP)
+- [ACKTR](https://arxiv.org/abs/1708.05144) (WIP)
 
 This project is still under active development.
+
+# Features
+
+- Modular architecture
+- Implemented in PyTorch
+- Readable code
 
 # Installation
 
