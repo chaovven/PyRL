@@ -9,9 +9,8 @@ def eval_policy(learner, action_selector, args):
     for _ in range(args.test_nepisodes):
         state, done = eval_env.reset(), False
         while not done:
-            agent_output = learner.forward(state)
-            action = action_selector.select_action(agent_output, 0, train_mode=False)
-            action = action.item() if args.discrete else action
+            action = action_selector.select_action(learner.forward(state), 0, train_mode=False)
+            action = action.item() if args.discrete else action.numpy()
             state, reward, done, _ = eval_env.step(action)
             avg_reward += reward
 

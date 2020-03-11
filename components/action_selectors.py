@@ -41,7 +41,7 @@ class EpsilonGreedyActionSelector(BaseActionSelector):
             self.logger.add_scalar("epsilon", self.epsilon, t_env)
             self.last_log = t_env
 
-        return a
+        return a.detach()
 
 
 class GaussianActionSelector(BaseActionSelector):
@@ -62,7 +62,7 @@ class GaussianActionSelector(BaseActionSelector):
         else:
             a = action_dist.mean.detach()
 
-        return a
+        return a.detach()
 
 
 class SquashedGaussianActionSelector(BaseActionSelector):
@@ -78,11 +78,11 @@ class SquashedGaussianActionSelector(BaseActionSelector):
         if train_mode:
             a = action_dist.rsample()  # reparameterization trick
         else:
-            a = action_dist.mean.detach()
+            a = action_dist.mean
 
         a = th.tanh(a) * th.tensor(self.args.max_action, dtype=th.float)  # TODO: how about just clipping like TD3?
 
-        return a
+        return a.detach()
 
 
 class MultinomialActionSelector(BaseActionSelector):
@@ -125,12 +125,13 @@ class DeterministicActionSelector(BaseActionSelector):
             a = (actor_out + noise).clip(self.args.min_action, self.args.max_action)
         else:
             a = actor_out
-        return a
+
+        return a.detach()
 
 
 REGISTRY = {}
 REGISTRY["epsilon_greedy"] = EpsilonGreedyActionSelector
 REGISTRY["gaussian"] = GaussianActionSelector
 REGISTRY["multinomial"] = MultinomialActionSelector
-REGISTRY["deterministic"] = MultinomialActionSelector
+REGISTRY["deterministic"] = DeterministicActionSelector
 REGISTRY["squashed_gaussian"] = SquashedGaussianActionSelector
