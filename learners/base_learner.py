@@ -30,3 +30,12 @@ class BaseLearner():
     def _update_target_actor(self):
         for param, target_param in zip(self.actor.parameters(), self.target_actor.parameters()):
             target_param.data.copy_(self.args.tau * param.data + (1 - self.args.tau) * target_param.data)
+
+    def cuda(self):
+        self.actor.cuda()
+        if self.critic is not None:
+            self.critic.cuda()
+        if self.target_critic is not None:
+            self.target_critic.cuda()
+        if self.target_actor is not None:
+            self.target_actor.cuda()
