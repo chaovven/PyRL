@@ -8,6 +8,7 @@ from sacred.observers import FileStorageObserver
 import sys
 import torch as th
 from run import run
+from run import run_episode
 import yaml
 import gym
 from gym.spaces import Box, Discrete
@@ -39,21 +40,23 @@ def my_main(_run, _config, _log):
         _config['action_dim'] = env.action_space.n
 
     # fields that appear in the event filename
-    use_critic = _config['learner'] not in ['dqn']
-    values = ['env', 'learner', 'lr']
-    names = ['', '', 'lr=']
-    if use_critic:
-        values.append('critic_lr')
-        names.append('clr=')
-    unique_token = _config[values[0]]
-    for i in range(1, len(names)):
-        unique_token = unique_token + '__{}{}'.format(names[i], str(_config[values[i]]))
-    unique_token += '__' + _config['time']
+    critic_lr = '' if _config['learner'] in ['dqn'] else '__clr={}'.format(_config["critic_lr"])
+    unique_token = '{}-{}__{}__lr={}{}__bt={}_{}'.format(_config["env"],
+                                                         _config["learner"],
+                                                         _config["name"],
+                                                         _config["lr"],
+                                                         critic_lr,
+                                                         _config["buffer_type"],
+                                                         _config["time"])
 
     _config['tb_path'] = os.path.join(dirname(abspath(__file__)), "results", _config['env'], unique_token)
 
-    # run the framework
-    run(_run, _config, _log, env)
+    if _config['buffer_type'] == 'transition':
+        run(_run, _config, _log, env)
+    elif _config['buffer_type'] == 'episode':
+        run_episode(_run, _config, _log, env)
+    else:
+        print("error: buffer_type not recognized!")
 
 
 def _get_config(params, arg_name, subfolder):

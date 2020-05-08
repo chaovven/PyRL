@@ -8,7 +8,7 @@ use_tensorboard: True
 max_timesteps: 1000000 # stop after running {} timesteps
 start_timesteps: 25000  # use random policy till running for {} timesteps
 log_interval: 2000 # log and evaluate policy every {} timesteps
-test_nepisodes: 24  # number of episodes for testing
+test_nepisodes: 10  # number of episodes for testing
 
 tau: 0.005
 gamma: 0.99
@@ -18,3 +18,5 @@ grad_norm_clip: 10
 # whether store these items in the buffer
 buf_act_logprob: False
 buf_act_onehot: False
+
+buffer_type: 'transition'  # transition buffer stores the transition while 'episode' buffer stores the whole trajectory
