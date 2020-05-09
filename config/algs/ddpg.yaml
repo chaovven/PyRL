@@ -1,14 +1,18 @@
-name: ddpg
+name: ""
 learner: ddpg
 
-buffer_size: 5000
-batch_size: 8
+buffer_size: 1000000
+batch_size: 32
 
 action_selector: "deterministic"
 actor: "deterministic"
 
-lr: 0.0001
-critic_lr: 0.0001
+lr: 0.001
+critic_lr: 0.001
 
 expl_noise: 0.1
-hidden_dim: 64
+
+log_interval: 5000
+start_timesteps: 10000
+
+buffer_type: 'transition'
