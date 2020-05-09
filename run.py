@@ -50,11 +50,12 @@ def run(_run, _config, _log, env):
         a0 = a0.item() if args.discrete else a0
 
         s1, r0, done, _ = env.step(a0)
+        done_bool = float(done) if ep_t < env._max_episode_steps else 0
 
         # action_onehot = one_hot(th.tensor(a0).view(1, -1), args.action_dim) if args.buf_act_onehot else None
         logprob = action_selector.log_prob.view(1, -1) if args.buf_act_logprob else None
 
-        ep_buffer.add(state=s0, action=a0, reward=r0, next_state=s1, done=done, logprob=logprob)
+        ep_buffer.add(state=s0, action=a0, reward=r0, next_state=s1, done=done_bool, logprob=logprob)
 
         s0 = s1
         ep_t += 1
