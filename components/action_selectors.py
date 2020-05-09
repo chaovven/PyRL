@@ -120,13 +120,13 @@ class DeterministicActionSelector(BaseActionSelector):
         BaseActionSelector.__init__(self, args, logger)
 
     def select_action(self, actor_out, t_env, train_mode=False):
+        actor_out = actor_out.cpu().detach().numpy()
         if train_mode:  # add noise if training
             noise = np.random.normal(0, self.args.max_action * self.args.expl_noise, size=self.args.action_dim)
             a = (actor_out + noise).clip(self.args.min_action, self.args.max_action)
         else:
             a = actor_out
-
-        return a.detach()
+        return a
 
 
 REGISTRY = {}
