@@ -72,3 +72,20 @@ class QFun_double(nn.Module):
     def q2(self, state, action):
         input = th.cat([state, action], dim=-1)
         return self.q2_net(input)
+
+
+class QFun_DDPG(nn.Module):
+    def __init__(self, args):
+        super(QFun_DDPG, self).__init__()
+        self.args = args
+
+        self.fc1 = nn.Linear(args.state_dim + args.action_dim, 400)
+        self.fc2 = nn.Linear(400, 300)
+        self.fc3 = nn.Linear(300, 1)
+
+    def forward(self, state, action):
+        x = th.cat([state, action], -1)
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        q = self.fc3(x)
+        return q
