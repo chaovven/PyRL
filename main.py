@@ -19,42 +19,44 @@ ex = Experiment("pyrl")
 @ex.main
 def my_main(_run, _config, _log):
     # Setting the random seed throughout the modules
-    np.random.seed(_config["seed"])
-    th.manual_seed(_config["seed"])
+    config = deepcopy(_config)
 
-    env = gym.make(_config['env'])
-    env.seed(_config["seed"])
+    np.random.seed(config["seed"])
+    th.manual_seed(config["seed"])
+
+    env = gym.make(config['env'])
+    env.seed(config["seed"])
 
     # add info about env
-    _config['state_dim'] = env.observation_space.shape[0]
-    _config['ep_limit'] = env._max_episode_steps
+    config['state_dim'] = env.observation_space.shape[0]
+    config['ep_limit'] = env._max_episode_steps
 
     if isinstance(env.action_space, Box):
-        _config['discrete'] = False
-        _config['action_dim'] = env.action_space.shape[0]
-        _config['max_action'] = env.action_space.high
-        _config['min_action'] = env.action_space.low
+        config['discrete'] = False
+        config['action_dim'] = env.action_space.shape[0]
+        config['max_action'] = env.action_space.high
+        config['min_action'] = env.action_space.low
 
     elif isinstance(env.action_space, Discrete):
-        _config['discrete'] = True
-        _config['action_dim'] = env.action_space.n
+        config['discrete'] = True
+        config['action_dim'] = env.action_space.n
 
     # fields that appear in the event filename
-    critic_lr = '' if _config['learner'] in ['dqn'] else '__clr={}'.format(_config["critic_lr"])
-    unique_token = '{}-{}__{}__lr={}{}__bt={}_{}'.format(_config["env"],
-                                                         _config["learner"],
-                                                         _config["name"],
-                                                         _config["lr"],
+    critic_lr = '' if config['learner'] in ['dqn'] else '__clr={}'.format(config["critic_lr"])
+    unique_token = '{}-{}__{}__lr={}{}__bt={}_{}'.format(config["env"],
+                                                         config["learner"],
+                                                         config["name"],
+                                                         config["lr"],
                                                          critic_lr,
-                                                         _config["buffer_type"],
-                                                         _config["time"])
+                                                         config["buffer_type"],
+                                                         config["time"])
 
-    _config['tb_path'] = os.path.join(dirname(abspath(__file__)), "results", _config['env'], unique_token)
+    config['tb_path'] = os.path.join(dirname(abspath(__file__)), "results", config['env'], unique_token)
 
-    if _config['buffer_type'] == 'transition':
-        run(_run, _config, _log, env)
-    elif _config['buffer_type'] == 'episode':
-        run_episode(_run, _config, _log, env)
+    if config['buffer_type'] == 'transition':
+        run(_run, config, _log, env)
+    elif config['buffer_type'] == 'episode':
+        run_episode(_run, config, _log, env)
     else:
         print("error: buffer_type not recognized!")
 
@@ -92,8 +94,7 @@ if __name__ == '__main__':
     config_dict.update(alg_config)
 
     config_dict['time'] = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    ex.observers.append(
-        FileStorageObserver.create(os.path.join(dirname(abspath(__file__)), "results/sacred", config_dict['time'])))
+    ex.observers.append(FileStorageObserver(os.path.join(dirname(abspath(__file__)), "results/sacred", config_dict['time'])))
 
     # add all the config to sacred
     ex.add_config(config_dict)
