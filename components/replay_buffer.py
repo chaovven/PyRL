@@ -10,6 +10,7 @@ class ReplayBuffer():
 
         self.state = np.zeros((args.buffer_size, args.state_dim))
         self.action = np.zeros((args.buffer_size, args.action_dim))
+        self.action = np.zeros((args.buffer_size, 1)) if args.discrete else np.zeros((args.buffer_size, args.action_dim))
         self.next_state = np.zeros((args.buffer_size, args.state_dim))
         self.reward = np.zeros((args.buffer_size, 1))
         self.done = np.zeros((args.buffer_size, 1))
