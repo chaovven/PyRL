@@ -12,6 +12,7 @@ from run import run_episode
 import yaml
 import gym
 from gym.spaces import Box, Discrete
+from envs import REGISTRY as ENV_REGISTRY
 
 ex = Experiment("pyrl")
 
@@ -24,7 +25,11 @@ def my_main(_run, _config, _log):
     np.random.seed(config["seed"])
     th.manual_seed(config["seed"])
 
-    env = gym.make(config['env'])
+    if config['env'] in ENV_REGISTRY.keys():    # customize your own environment here, stored in ./envs
+        env = ENV_REGISTRY[config['env']]()
+    else:
+        env = gym.make(config['env'])
+
     env.seed(config["seed"])
 
     # add info about env
