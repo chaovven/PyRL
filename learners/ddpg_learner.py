@@ -21,47 +21,6 @@ class DDPGLearner(BaseLearner):
         args = self.args
         s = batch['state']
         a = batch['action']
-        r = batch['reward']
-        next_s = batch['next_state']
-        done = batch['done']
-
-        ############### optimize critic ################
-        target_q = r + args.gamma * (1 - done) * self.target_critic(next_s, self.target_actor(next_s))
-        chosen_action_q = self.critic(s, a)
-
-        critic_loss = F.mse_loss(chosen_action_q, target_q.detach())
-
-        self.critic_optimizer.zero_grad()
-        critic_loss.backward()
-        # critic_grad_norm = th.nn.utils.clip_grad_norm_(self.critic.parameters(), args.grad_norm_clip)
-        self.critic_optimizer.step()
-
-        ############### optimize actor #################
-
-        actor_loss = - self.critic(s, self.actor(s)).mean()
-
-        self.actor_optimizer.zero_grad()
-        actor_loss.backward()
-        # actor_grad_norm = th.nn.utils.clip_grad_norm_(self.actor.parameters(), args.grad_norm_clip)
-        self.actor_optimizer.step()
-
-        ############### update target networks #################
-        self._update_target_actor()
-        self._update_target_critic()
-
-        ############### log data #################
-        if t_env - self.last_log >= args.log_interval:
-            self.logger.add_scalar("actor_loss", actor_loss, t_env)
-            # self.logger.add_scalar("actor_grad_norm", actor_grad_norm, t_env)
-            self.logger.add_scalar("critic_loss", critic_loss, t_env)
-            # self.logger.add_scalar("critic_grad_norm", critic_grad_norm, t_env)
-
-            self.last_log = t_env
-
-    def train_episode(self, batch, t_env):
-        args = self.args
-        s = batch['state']
-        a = batch['action']
         r = batch['reward'][:, :-1]
         done = batch['done'][:, :-1]
         mask = batch['mask'][:, :-1]
