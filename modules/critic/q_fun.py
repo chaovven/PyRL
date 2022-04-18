@@ -5,8 +5,8 @@ import torch.nn.functional as F
 
 class QFun_continuous(nn.Module):
     """
-    Q Function for continuous case,
-    take state and action as input and output the Q(s,a)
+    The Q function that takes as input the state-action pair and output the scalar Q(s,a).
+    This is the same as QFun_DDPG.
     """
 
     def __init__(self, args):
@@ -47,7 +47,7 @@ class QFun_discreate(nn.Module):
 
 class QFun_double(nn.Module):
     """
-    double Q architecture used by TD3
+    double Q architecture used by TD3 and SAC
     """
 
     def __init__(self, args):
@@ -75,6 +75,10 @@ class QFun_double(nn.Module):
 
 
 class QFun_DDPG(nn.Module):
+    """
+    Q function used by DDPG, which take as input state-action pair and output the scalar Q(s,a).
+    """
+
     def __init__(self, args):
         super(QFun_DDPG, self).__init__()
         self.args = args
