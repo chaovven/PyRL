@@ -69,8 +69,6 @@ def run(_run, _config, _log, env):
         else:
             a0 = action_selector.select_action(learner.forward(s0), t_env, train_mode=True)
 
-        a0 = a0.item() if args.discrete else a0
-
         s1, r1, done, _ = env.step(a0)
 
         ep_data['state'][:, ep_t] = th.tensor(s0).view(1, -1)

@@ -41,7 +41,7 @@ class EpsilonGreedyActionSelector(BaseActionSelector):
             self.logger.add_scalar("epsilon", self.epsilon, t_env)
             self.last_log = t_env
 
-        return a.detach()
+        return a.item()
 
 
 class GaussianActionSelector(BaseActionSelector):
@@ -62,7 +62,7 @@ class GaussianActionSelector(BaseActionSelector):
         else:
             a = action_dist.mean.detach()
 
-        return a.detach()
+        return a.detach().numpy().reshape(self.args.action_dim)
 
 
 class SquashedGaussianActionSelector(BaseActionSelector):
@@ -82,7 +82,7 @@ class SquashedGaussianActionSelector(BaseActionSelector):
 
         a = th.tanh(a) * th.tensor(self.args.max_action, dtype=th.float)  # TODO: how about just clipping like TD3?
 
-        return a.detach()
+        return a.detach().numpy().reshape(self.args.action_dim)
 
 
 class MultinomialActionSelector(BaseActionSelector):
@@ -112,7 +112,7 @@ class MultinomialActionSelector(BaseActionSelector):
 
         self.log_prob = th.log(probs).detach()[:, picked_actions]
 
-        return picked_actions
+        return picked_actions.item()
 
 
 class DeterministicActionSelector(BaseActionSelector):
@@ -126,7 +126,7 @@ class DeterministicActionSelector(BaseActionSelector):
             a = (actor_out + noise).clip(self.args.min_action, self.args.max_action)
         else:
             a = actor_out
-        return a
+        return a.reshape(self.args.action_dim)
 
 
 REGISTRY = {}

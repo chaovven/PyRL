@@ -22,7 +22,6 @@ def eval_policy(learner, action_selector, args):
         s0, done, ep_reward, ep_t = eval_env.reset(), False, 0, 0
         while not done:
             a0 = action_selector.select_action(learner.forward(s0), 0, train_mode=False)
-            a0 = a0.item() if args.discrete else a0
             s1, r1, done, _ = eval_env.step(a0)
 
             # log data
