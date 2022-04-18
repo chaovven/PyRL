@@ -19,4 +19,9 @@ grad_norm_clip: 10
 buf_act_logprob: False
 buf_act_onehot: False
 
-buffer_type: 'transition'  # transition buffer stores the transition while 'episode' buffer stores the whole trajectory
+# save model
+save_model: True
+model_save_interval: 100000
+
+# save model
+load_model_path: "" # load model files in the director {load_model_path}

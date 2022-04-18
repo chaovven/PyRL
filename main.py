@@ -8,7 +8,6 @@ from sacred.observers import FileStorageObserver
 import sys
 import torch as th
 from run import run
-from run import run_episode
 import yaml
 import gym
 from gym.spaces import Box, Discrete
@@ -25,7 +24,7 @@ def my_main(_run, _config, _log):
     np.random.seed(config["seed"])
     th.manual_seed(config["seed"])
 
-    if config['env'] in ENV_REGISTRY.keys():    # customize your own environment here, stored in ./envs
+    if config['env'] in ENV_REGISTRY.keys():  # customize your own environment here, stored in ./envs
         env = ENV_REGISTRY[config['env']]()
     else:
         env = gym.make(config['env'])
@@ -48,22 +47,16 @@ def my_main(_run, _config, _log):
 
     # fields that appear in the event filename
     critic_lr = '' if config['learner'] in ['dqn'] else '__clr={}'.format(config["critic_lr"])
-    unique_token = '{}-{}__{}__lr={}{}__bt={}_{}'.format(config["env"],
+    unique_token = '{}-{}_{}_lr={}{}_{}'.format(config["env"],
                                                          config["learner"],
                                                          config["name"],
                                                          config["lr"],
                                                          critic_lr,
-                                                         config["buffer_type"],
                                                          config["time"])
 
     config['tb_path'] = os.path.join(dirname(abspath(__file__)), "results", config['env'], unique_token)
 
-    if config['buffer_type'] == 'transition':
-        run(_run, config, _log, env)
-    elif config['buffer_type'] == 'episode':
-        run_episode(_run, config, _log, env)
-    else:
-        print("error: buffer_type not recognized!")
+    run(_run, config, _log, env)
 
 
 def _get_config(params, arg_name, subfolder):
@@ -99,7 +92,8 @@ if __name__ == '__main__':
     config_dict.update(alg_config)
 
     config_dict['time'] = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    ex.observers.append(FileStorageObserver(os.path.join(dirname(abspath(__file__)), "results/sacred", config_dict['time'])))
+    ex.observers.append(
+        FileStorageObserver(os.path.join(dirname(abspath(__file__)), "results/sacred", config_dict['time'])))
 
     # add all the config to sacred
     ex.add_config(config_dict)

@@ -69,6 +69,19 @@ The experimental results will be stored in the folder `results` in the form of T
 
 Note that the hyperparameters (e.g, learning rate) have not been carefully tuned for each algorithm. 
 
+# Save and Load Models
+
+You can save the model by setting `save_model=True`. Set the model saving frequency by specifying `model_save_interval`. 
+For example, if you want to save your model every 10000 timesteps: 
+```shell
+python3 main.py --alg=pg_disc with env=CartPole-v1 save_mode=True model_save_interval=10000
+```
+By default, the model will be saved in the directory `./results/{ENV_NAME}/{TENSORBOARD_EVENT_FILE_DIR}/models`.
+
+Load your models by specifying the model path `load_model_path` to be loaded. For example, load your model at timestep 100:
+```shell
+python3 main.py --alg=pg_disc with env=CartPole-v1 save_mode=True load_model_path=./results/{ENV_NAME}/{TENSORBOARD_EVENT_FILE_DIR}/models/100
+```
 
 # Citing PyRL
 If you reference or use PyRL in your research, please cite:
