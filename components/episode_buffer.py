@@ -15,10 +15,10 @@ class EpisodeBuffer:
         """
         self.buffer.clear()
 
-    def update(self, transition):
+    def update(self, ep_data):
         if len(self.buffer) == self.capacity:
             self.buffer.pop(0)
-        self.buffer.append(transition)
+        self.buffer.append(ep_data)
 
     def _len(self):
         return len(self.buffer)
